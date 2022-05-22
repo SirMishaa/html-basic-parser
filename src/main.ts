@@ -1,32 +1,25 @@
-/**
- * Some predefined delay values (in milliseconds).
- */
-export enum Delays {
-  Short = 500,
-  Medium = 2000,
-  Long = 5000,
-}
+import * as fs from 'fs';
+import path from 'path';
+import readline, { Interface } from 'readline';
+import events from 'node:events';
+import { Lexer } from './Lexer.js';
 
-/**
- * Returns a Promise<string> that resolves after a given time.
- *
- * @param {string} name - A name.
- * @param {number=} [delay=Delays.Medium] - A number of milliseconds to delay resolution of the Promise.
- * @returns {Promise<string>}
- */
-function delayedHello(
-  name: string,
-  delay: number = Delays.Medium,
-): Promise<string> {
-  return new Promise((resolve: (value?: string) => void) =>
-    setTimeout(() => resolve(`Hello, ${name}`), delay),
-  );
-}
+const ROOT_PATH = process.cwd();
 
-// Below are examples of using ESLint errors suppression
-// Here it is suppressing a missing return type definition for the greeter function.
+const readerInterface: Interface = readline.createInterface({
+  input: fs.createReadStream(path.join(ROOT_PATH, 'build/src/index.html')),
+  /* \r\n as new line */
+  crlfDelay: Infinity,
+});
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export async function greeter(name: string) {
-  return await delayedHello(name, Delays.Long);
-}
+readerInterface.on('line', (line) => {
+  const lexer = new Lexer(line);
+  const tokens = lexer.parse();
+  tokens.forEach((token) => {
+    console.log(token.type);
+  });
+});
+
+await events.once(readerInterface, 'close');
+const memoryUsage = process.memoryUsage().heapUsed / 1024 / 1024;
+console.log(`Script memory usage of ${Math.round(memoryUsage * 100) / 100} MB`);

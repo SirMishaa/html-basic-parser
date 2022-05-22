@@ -15,6 +15,7 @@
     "eslint-config-prettier": "~8.5",
     "eslint-plugin-jest": "~26.1",
     "jest": "~27.5",
+    "nodemon": "^2.0.16",
     "prettier": "~2.5",
     "rimraf": "~3.0",
     "ts-jest": "~27.1",
@@ -22,7 +23,7 @@
     "typescript": "~4.6"
   },
   "scripts": {
-    "start": "node build/src/main.js",
+    "start": "nodemon build/src/main.js",
     "clean": "rimraf coverage build tmp",
     "prebuild": "npm run lint",
     "build": "tsc -p tsconfig.json",
